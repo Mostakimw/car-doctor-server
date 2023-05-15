@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
@@ -41,7 +42,6 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await servicesCollection.findOne(query);
-
       res.send(result);
     });
 
@@ -53,8 +53,18 @@ async function run() {
       res.send(result);
     });
 
-    // ! read booking service data from db by login user
+    // ! JWT token
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      console.log(token);
+      res.send({ token });
+    });
 
+    // ! read booking service data from db by login user
     app.get("/booking", async (req, res) => {
       console.log(req.query.email);
       let query = {};
